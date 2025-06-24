@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,6 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Upload, FileSpreadsheet, CheckCircle, AlertCircle, X, FileText, Database } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { MatchingEngine } from "@/utils/matchingEngine";
+import { MatchingResults } from "./MatchingResults";
+import type { ReportInputData } from "@/data/riskTaxonomy";
 
 interface FileUploadSectionProps {
   onFileUpload: (file: File) => void;
@@ -16,6 +18,8 @@ export const FileUploadSection = ({ onFileUpload, uploadedMaterialityFile }: Fil
   const { toast } = useToast();
   const [dragOver, setDragOver] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [matchingResults, setMatchingResults] = useState<ReportInputData | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const validateMaterialityFile = (file: File): boolean => {
     const validExtensions = ['.json', '.csv'];
@@ -26,6 +30,37 @@ export const FileUploadSection = ({ onFileUpload, uploadedMaterialityFile }: Fil
       return false;
     }
     return true;
+  };
+
+  const processMaterialityFile = async (file: File) => {
+    setIsProcessing(true);
+    try {
+      console.log('Processing materiality file:', file.name);
+      const materialityEntries = await MatchingEngine.parseMaterialityFile(file);
+      console.log('Parsed materiality entries:', materialityEntries);
+      
+      const reportData = MatchingEngine.matchMaterialityToTaxonomy(materialityEntries);
+      console.log('Matching results:', reportData);
+      
+      const summary = MatchingEngine.generateMatchingSummary(reportData);
+      console.log('Matching summary:', summary);
+      
+      setMatchingResults(reportData);
+      
+      toast({
+        title: "Matching completed successfully",
+        description: `Found ${summary.totalMatches} matches across ${summary.uniqueRiskPaths} risk pathways.`,
+      });
+    } catch (error) {
+      console.error('Error processing materiality file:', error);
+      toast({
+        title: "Processing failed",
+        description: "Error processing materiality file. Please check the format.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -51,6 +86,7 @@ export const FileUploadSection = ({ onFileUpload, uploadedMaterialityFile }: Fil
 
     if (isValid) {
       onFileUpload(file);
+      processMaterialityFile(file);
       toast({
         title: "File uploaded successfully",
         description: "Materiality assessment file has been uploaded.",
@@ -67,6 +103,7 @@ export const FileUploadSection = ({ onFileUpload, uploadedMaterialityFile }: Fil
 
     if (isValid) {
       onFileUpload(file);
+      processMaterialityFile(file);
       toast({
         title: "File uploaded successfully",
         description: "Materiality assessment file has been uploaded.",
@@ -76,6 +113,7 @@ export const FileUploadSection = ({ onFileUpload, uploadedMaterialityFile }: Fil
 
   const removeFile = () => {
     onFileUpload(null as any);
+    setMatchingResults(null);
     toast({
       title: "File removed",
       description: "Materiality assessment file has been removed.",
@@ -204,24 +242,8 @@ export const FileUploadSection = ({ onFileUpload, uploadedMaterialityFile }: Fil
         </Card>
       </div>
 
-      {/* Analysis Actions */}
-      {uploadedMaterialityFile && (
-        <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-semibold text-blue-900 mb-1">Ready for Analysis</h3>
-                <p className="text-sm text-blue-700">
-                  Materiality assessment uploaded successfully. You can now generate your ESG risk assessment report using our embedded taxonomy.
-                </p>
-              </div>
-              <Button className="bg-blue-600 hover:bg-blue-700">
-                Generate Report
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {/* Matching Results */}
+      <MatchingResults reportData={matchingResults} isProcessing={isProcessing} />
     </div>
   );
 };
