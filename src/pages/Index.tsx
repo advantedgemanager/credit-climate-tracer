@@ -9,16 +9,10 @@ import { Badge } from "@/components/ui/badge";
 import { Shield, TrendingUp, FileText } from "lucide-react";
 
 const Index = () => {
-  const [uploadedFiles, setUploadedFiles] = useState({
-    taxonomy: null,
-    materiality: null
-  });
+  const [uploadedMaterialityFile, setUploadedMaterialityFile] = useState<File | null>(null);
 
-  const handleFileUpload = (fileType: 'taxonomy' | 'materiality', file: File) => {
-    setUploadedFiles(prev => ({
-      ...prev,
-      [fileType]: file
-    }));
+  const handleFileUpload = (file: File) => {
+    setUploadedMaterialityFile(file);
   };
 
   return (
@@ -63,11 +57,11 @@ const Index = () => {
               <div className="p-2 bg-blue-100 rounded-lg w-fit">
                 <FileText className="h-5 w-5 text-blue-600" />
               </div>
-              <CardTitle className="text-lg">Risk Taxonomy Mapping</CardTitle>
+              <CardTitle className="text-lg">Embedded Risk Taxonomy</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-slate-600 text-sm">
-                Upload your structured risk taxonomy to define the pathway from dependencies to credit risks.
+                Pre-built structured risk taxonomy that defines pathways from dependencies to credit risks.
               </p>
             </CardContent>
           </Card>
@@ -81,7 +75,7 @@ const Index = () => {
             </CardHeader>
             <CardContent>
               <p className="text-slate-600 text-sm">
-                Automatically match material heatpoints to taxonomy nodes and trace complete risk pathways.
+                Upload your materiality assessment to automatically match material heatpoints to taxonomy nodes.
               </p>
             </CardContent>
           </Card>
@@ -106,7 +100,7 @@ const Index = () => {
           <CardHeader>
             <CardTitle className="text-xl">Risk Assessment Dashboard</CardTitle>
             <CardDescription>
-              Upload your risk taxonomy and materiality assessment to generate comprehensive ESG-to-credit risk reports
+              Upload your materiality assessment to generate comprehensive ESG-to-credit risk reports using our embedded taxonomy
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -129,12 +123,12 @@ const Index = () => {
               <TabsContent value="upload" className="space-y-6">
                 <FileUploadSection 
                   onFileUpload={handleFileUpload}
-                  uploadedFiles={uploadedFiles}
+                  uploadedMaterialityFile={uploadedMaterialityFile}
                 />
               </TabsContent>
 
               <TabsContent value="reports" className="space-y-6">
-                <ReportSection uploadedFiles={uploadedFiles} />
+                <ReportSection uploadedMaterialityFile={uploadedMaterialityFile} />
               </TabsContent>
 
               <TabsContent value="history" className="space-y-6">

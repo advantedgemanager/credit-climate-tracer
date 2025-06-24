@@ -4,29 +4,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Upload, FileJson, FileSpreadsheet, CheckCircle, AlertCircle, X } from "lucide-react";
+import { Upload, FileSpreadsheet, CheckCircle, AlertCircle, X, FileText, Database } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface FileUploadSectionProps {
-  onFileUpload: (fileType: 'taxonomy' | 'materiality', file: File) => void;
-  uploadedFiles: {
-    taxonomy: File | null;
-    materiality: File | null;
-  };
+  onFileUpload: (file: File) => void;
+  uploadedMaterialityFile: File | null;
 }
 
-export const FileUploadSection = ({ onFileUpload, uploadedFiles }: FileUploadSectionProps) => {
+export const FileUploadSection = ({ onFileUpload, uploadedMaterialityFile }: FileUploadSectionProps) => {
   const { toast } = useToast();
-  const [dragOver, setDragOver] = useState<string | null>(null);
+  const [dragOver, setDragOver] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
-
-  const validateTaxonomyFile = (file: File): boolean => {
-    if (!file.name.endsWith('.json')) {
-      setValidationErrors(['Taxonomy file must be a JSON file']);
-      return false;
-    }
-    return true;
-  };
 
   const validateMaterialityFile = (file: File): boolean => {
     const validExtensions = ['.json', '.csv'];
@@ -39,68 +28,57 @@ export const FileUploadSection = ({ onFileUpload, uploadedFiles }: FileUploadSec
     return true;
   };
 
-  const handleDragOver = useCallback((e: React.DragEvent, fileType: string) => {
+  const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
-    setDragOver(fileType);
+    setDragOver(true);
   }, []);
 
   const handleDragLeave = useCallback((e: React.DragEvent) => {
     e.preventDefault();
-    setDragOver(null);
+    setDragOver(false);
   }, []);
 
-  const handleDrop = useCallback((e: React.DragEvent, fileType: 'taxonomy' | 'materiality') => {
+  const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
-    setDragOver(null);
+    setDragOver(false);
     setValidationErrors([]);
 
     const files = Array.from(e.dataTransfer.files);
     if (files.length === 0) return;
 
     const file = files[0];
-    let isValid = false;
-
-    if (fileType === 'taxonomy') {
-      isValid = validateTaxonomyFile(file);
-    } else {
-      isValid = validateMaterialityFile(file);
-    }
+    const isValid = validateMaterialityFile(file);
 
     if (isValid) {
-      onFileUpload(fileType, file);
+      onFileUpload(file);
       toast({
         title: "File uploaded successfully",
-        description: `${fileType === 'taxonomy' ? 'Risk taxonomy' : 'Materiality assessment'} file has been uploaded.`,
+        description: "Materiality assessment file has been uploaded.",
       });
     }
   }, [onFileUpload, toast]);
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>, fileType: 'taxonomy' | 'materiality') => {
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValidationErrors([]);
     const file = e.target.files?.[0];
     if (!file) return;
 
-    let isValid = false;
-    if (fileType === 'taxonomy') {
-      isValid = validateTaxonomyFile(file);
-    } else {
-      isValid = validateMaterialityFile(file);
-    }
+    const isValid = validateMaterialityFile(file);
 
     if (isValid) {
-      onFileUpload(fileType, file);
+      onFileUpload(file);
       toast({
         title: "File uploaded successfully",
-        description: `${fileType === 'taxonomy' ? 'Risk taxonomy' : 'Materiality assessment'} file has been uploaded.`,
+        description: "Materiality assessment file has been uploaded.",
       });
     }
   };
 
-  const removeFile = (fileType: 'taxonomy' | 'materiality') => {
-    onFileUpload(fileType, null as any);
+  const removeFile = () => {
+    onFileUpload(null as any);
     toast({
       title: "File removed",
-      description: `${fileType === 'taxonomy' ? 'Risk taxonomy' : 'Materiality assessment'} file has been removed.`,
+      description: "Materiality assessment file has been removed.",
     });
   };
 
@@ -116,81 +94,34 @@ export const FileUploadSection = ({ onFileUpload, uploadedFiles }: FileUploadSec
       )}
 
       <div className="grid md:grid-cols-2 gap-6">
-        {/* Risk Taxonomy Upload */}
-        <Card className="relative">
+        {/* Embedded Risk Taxonomy Info */}
+        <Card className="bg-blue-50 border-blue-200">
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <FileJson className="h-5 w-5 text-blue-600" />
-                <CardTitle className="text-lg">Risk Taxonomy</CardTitle>
-              </div>
-              {uploadedFiles.taxonomy && (
-                <Badge variant="secondary" className="bg-green-100 text-green-700">
-                  <CheckCircle className="h-3 w-3 mr-1" />
-                  Uploaded
-                </Badge>
-              )}
+            <div className="flex items-center gap-2">
+              <Database className="h-5 w-5 text-blue-600" />
+              <CardTitle className="text-lg">Risk Taxonomy</CardTitle>
+              <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+                <CheckCircle className="h-3 w-3 mr-1" />
+                Embedded
+              </Badge>
             </div>
             <CardDescription>
-              Upload your structured JSON file containing the risk taxonomy hierarchy: 
+              Pre-built structured taxonomy containing the risk hierarchy: 
               dependency → impact → transition risk → transmission channel → financial effect → credit risk
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {uploadedFiles.taxonomy ? (
-              <div className="p-4 border border-green-200 rounded-lg bg-green-50">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <FileJson className="h-4 w-4 text-green-600" />
-                    <span className="text-sm font-medium text-green-800">
-                      {uploadedFiles.taxonomy.name}
-                    </span>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeFile('taxonomy')}
-                    className="text-red-600 hover:text-red-800"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-                <p className="text-xs text-green-600 mt-1">
-                  {(uploadedFiles.taxonomy.size / 1024).toFixed(1)} KB
-                </p>
+            <div className="p-4 border border-blue-200 rounded-lg bg-blue-100/50">
+              <div className="flex items-center gap-2 mb-2">
+                <FileText className="h-4 w-4 text-blue-600" />
+                <span className="text-sm font-medium text-blue-800">
+                  Integrated Risk Framework
+                </span>
               </div>
-            ) : (
-              <div
-                className={`border-2 border-dashed rounded-lg p-6 text-center transition-all ${
-                  dragOver === 'taxonomy'
-                    ? 'border-blue-400 bg-blue-50'
-                    : 'border-gray-300 hover:border-gray-400'
-                }`}
-                onDragOver={(e) => handleDragOver(e, 'taxonomy')}
-                onDragLeave={handleDragLeave}
-                onDrop={(e) => handleDrop(e, 'taxonomy')}
-              >
-                <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                <p className="text-sm font-medium text-gray-900 mb-1">
-                  Drop your taxonomy JSON file here
-                </p>
-                <p className="text-xs text-gray-500 mb-3">or click to browse</p>
-                <input
-                  type="file"
-                  accept=".json"
-                  onChange={(e) => handleFileSelect(e, 'taxonomy')}
-                  className="hidden"
-                  id="taxonomy-upload"
-                />
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => document.getElementById('taxonomy-upload')?.click()}
-                >
-                  Select File
-                </Button>
-              </div>
-            )}
+              <p className="text-xs text-blue-700">
+                Ready to match against your materiality assessment
+              </p>
+            </div>
           </CardContent>
         </Card>
 
@@ -202,7 +133,7 @@ export const FileUploadSection = ({ onFileUpload, uploadedFiles }: FileUploadSec
                 <FileSpreadsheet className="h-5 w-5 text-green-600" />
                 <CardTitle className="text-lg">Materiality Assessment</CardTitle>
               </div>
-              {uploadedFiles.materiality && (
+              {uploadedMaterialityFile && (
                 <Badge variant="secondary" className="bg-green-100 text-green-700">
                   <CheckCircle className="h-3 w-3 mr-1" />
                   Uploaded
@@ -211,42 +142,42 @@ export const FileUploadSection = ({ onFileUpload, uploadedFiles }: FileUploadSec
             </div>
             <CardDescription>
               Upload your materiality assessment file (JSON or CSV) containing material heatpoints 
-              that will be matched against the risk taxonomy dependencies and impacts.
+              that will be matched against the embedded risk taxonomy.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {uploadedFiles.materiality ? (
+            {uploadedMaterialityFile ? (
               <div className="p-4 border border-green-200 rounded-lg bg-green-50">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <FileSpreadsheet className="h-4 w-4 text-green-600" />
                     <span className="text-sm font-medium text-green-800">
-                      {uploadedFiles.materiality.name}
+                      {uploadedMaterialityFile.name}
                     </span>
                   </div>
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => removeFile('materiality')}
+                    onClick={removeFile}
                     className="text-red-600 hover:text-red-800"
                   >
                     <X className="h-4 w-4" />
                   </Button>
                 </div>
                 <p className="text-xs text-green-600 mt-1">
-                  {(uploadedFiles.materiality.size / 1024).toFixed(1)} KB
+                  {(uploadedMaterialityFile.size / 1024).toFixed(1)} KB
                 </p>
               </div>
             ) : (
               <div
                 className={`border-2 border-dashed rounded-lg p-6 text-center transition-all ${
-                  dragOver === 'materiality'
+                  dragOver
                     ? 'border-green-400 bg-green-50'
                     : 'border-gray-300 hover:border-gray-400'
                 }`}
-                onDragOver={(e) => handleDragOver(e, 'materiality')}
+                onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
-                onDrop={(e) => handleDrop(e, 'materiality')}
+                onDrop={handleDrop}
               >
                 <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
                 <p className="text-sm font-medium text-gray-900 mb-1">
@@ -256,7 +187,7 @@ export const FileUploadSection = ({ onFileUpload, uploadedFiles }: FileUploadSec
                 <input
                   type="file"
                   accept=".json,.csv"
-                  onChange={(e) => handleFileSelect(e, 'materiality')}
+                  onChange={handleFileSelect}
                   className="hidden"
                   id="materiality-upload"
                 />
@@ -274,14 +205,14 @@ export const FileUploadSection = ({ onFileUpload, uploadedFiles }: FileUploadSec
       </div>
 
       {/* Analysis Actions */}
-      {uploadedFiles.taxonomy && uploadedFiles.materiality && (
+      {uploadedMaterialityFile && (
         <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="font-semibold text-blue-900 mb-1">Ready for Analysis</h3>
                 <p className="text-sm text-blue-700">
-                  Both files have been uploaded successfully. You can now generate your ESG risk assessment report.
+                  Materiality assessment uploaded successfully. You can now generate your ESG risk assessment report using our embedded taxonomy.
                 </p>
               </div>
               <Button className="bg-blue-600 hover:bg-blue-700">

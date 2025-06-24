@@ -3,17 +3,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { FileText, Download, Eye, AlertTriangle, CheckCircle, Clock } from "lucide-react";
+import { FileText, Download, Eye, AlertTriangle, CheckCircle, Clock, Database } from "lucide-react";
 
 interface ReportSectionProps {
-  uploadedFiles: {
-    taxonomy: File | null;
-    materiality: File | null;
-  };
+  uploadedMaterialityFile: File | null;
 }
 
-export const ReportSection = ({ uploadedFiles }: ReportSectionProps) => {
-  const hasRequiredFiles = uploadedFiles.taxonomy && uploadedFiles.materiality;
+export const ReportSection = ({ uploadedMaterialityFile }: ReportSectionProps) => {
+  const hasRequiredFile = uploadedMaterialityFile !== null;
 
   // Mock report data for demonstration
   const mockReports = [
@@ -63,13 +60,13 @@ export const ReportSection = ({ uploadedFiles }: ReportSectionProps) => {
     }
   };
 
-  if (!hasRequiredFiles) {
+  if (!hasRequiredFile) {
     return (
       <Alert>
         <AlertTriangle className="h-4 w-4" />
         <AlertDescription>
-          Please upload both the risk taxonomy and materiality assessment files in the Upload & Analysis tab 
-          to generate reports.
+          Please upload your materiality assessment file in the Upload & Analysis tab 
+          to generate reports using our embedded risk taxonomy.
         </AlertDescription>
       </Alert>
     );
@@ -85,18 +82,18 @@ export const ReportSection = ({ uploadedFiles }: ReportSectionProps) => {
             <CardTitle className="text-lg">Generate New Report</CardTitle>
           </div>
           <CardDescription>
-            Create a comprehensive ESG-to-credit risk assessment report using your uploaded files.
+            Create a comprehensive ESG-to-credit risk assessment report using your materiality file and our embedded taxonomy.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid md:grid-cols-3 gap-4 mb-4">
             <div className="text-center p-3 bg-white rounded-lg border">
-              <div className="font-semibold text-blue-600">Taxonomy</div>
-              <div className="text-sm text-gray-600">{uploadedFiles.taxonomy?.name}</div>
+              <div className="font-semibold text-blue-600">Risk Taxonomy</div>
+              <div className="text-sm text-gray-600">Embedded Framework</div>
             </div>
             <div className="text-center p-3 bg-white rounded-lg border">
               <div className="font-semibold text-green-600">Materiality</div>
-              <div className="text-sm text-gray-600">{uploadedFiles.materiality?.name}</div>
+              <div className="text-sm text-gray-600">{uploadedMaterialityFile?.name}</div>
             </div>
             <div className="text-center p-3 bg-white rounded-lg border">
               <div className="font-semibold text-purple-600">AI Engine</div>
