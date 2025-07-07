@@ -2,11 +2,9 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Download, Copy, Eye, EyeOff, Sparkles, FileText } from "lucide-react";
+import { Loader2, Download, Copy, Sparkles, FileText } from "lucide-react";
 import { MistralService } from "@/services/mistralService";
 import { toast } from "@/hooks/use-toast";
 import type { ReportInputData } from "@/data/riskTaxonomy";
@@ -17,18 +15,11 @@ interface ReportGeneratorProps {
 }
 
 export const ReportGenerator = ({ reportInputData, onReportGenerated }: ReportGeneratorProps) => {
-  const [apiKey, setApiKey] = useState("");
-  const [showApiKey, setShowApiKey] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedReport, setGeneratedReport] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const handleGenerateReport = async () => {
-    if (!apiKey.trim()) {
-      setError("Please enter your Mistral API key");
-      return;
-    }
-
     if (!reportInputData.reportInputData.length) {
       setError("No matched risk pathways found. Please upload and process a materiality assessment first.");
       return;
@@ -39,7 +30,7 @@ export const ReportGenerator = ({ reportInputData, onReportGenerated }: ReportGe
 
     try {
       console.log("Generating report with data:", reportInputData);
-      const report = await MistralService.generateReport(reportInputData, apiKey);
+      const report = await MistralService.generateReport(reportInputData);
       setGeneratedReport(report);
       onReportGenerated?.(report);
       
@@ -156,7 +147,7 @@ export const ReportGenerator = ({ reportInputData, onReportGenerated }: ReportGe
         </CardContent>
       </Card>
 
-      {/* API Key Input */}
+      {/* Generate Report */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -164,40 +155,10 @@ export const ReportGenerator = ({ reportInputData, onReportGenerated }: ReportGe
             Generate AI Report
           </CardTitle>
           <CardDescription>
-            Enter your Mistral API key to generate a comprehensive CRO-focused report
+            Generate a comprehensive CRO-focused report using AI analysis
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="mistral-api-key">Mistral API Key</Label>
-            <div className="relative">
-              <Input
-                id="mistral-api-key"
-                type={showApiKey ? "text" : "password"}
-                placeholder="Enter your Mistral API key"
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                className="pr-10"
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                onClick={() => setShowApiKey(!showApiKey)}
-              >
-                {showApiKey ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
-            <p className="text-xs text-gray-500">
-              Your API key is only used for this request and is not stored.
-            </p>
-          </div>
-
           {error && (
             <Alert variant="destructive">
               <AlertDescription>{error}</AlertDescription>
@@ -206,7 +167,7 @@ export const ReportGenerator = ({ reportInputData, onReportGenerated }: ReportGe
 
           <Button 
             onClick={handleGenerateReport} 
-            disabled={isGenerating || !apiKey.trim()}
+            disabled={isGenerating}
             className="w-full"
           >
             {isGenerating ? (

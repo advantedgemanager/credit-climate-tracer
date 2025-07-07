@@ -1,11 +1,9 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, FileText, EyeOff, Eye, Sparkles, TrendingUp, Database } from "lucide-react";
+import { Loader2, FileText, Sparkles, TrendingUp, Database } from "lucide-react";
 import { useBankSetup } from "@/contexts/BankSetupContext";
 import { HIERARCHICAL_RISK_TAXONOMY } from "@/data/riskTaxonomy";
 import { MistralService } from "@/services/mistralService";
@@ -13,8 +11,6 @@ import { toast } from "@/hooks/use-toast";
 
 export const ClientRiskAnalysis = () => {
   const { selectedRisks, clientData, isSetupComplete } = useBankSetup();
-  const [apiKey, setApiKey] = useState("");
-  const [showApiKey, setShowApiKey] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -24,11 +20,6 @@ export const ClientRiskAnalysis = () => {
                      (clientData.financialStatements || clientData.climateReports);
 
   const handleAnalyze = async () => {
-    if (!apiKey.trim()) {
-      setError("Please enter your Mistral API key");
-      return;
-    }
-
     if (!canAnalyze) {
       setError("Please complete Bank Setup and upload client documents");
       return;
@@ -111,7 +102,7 @@ Format the response in HTML with proper headings and structure.`;
       console.log("Analyzing client with selected risks:", analysisData);
       
       // Generate report using Mistral
-      const report = await MistralService.generateClientAnalysis(prompt, apiKey);
+      const report = await MistralService.generateClientAnalysis(prompt);
       setAnalysisResult(report);
       
       toast({
@@ -186,29 +177,6 @@ Format the response in HTML with proper headings and structure.`;
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="mistral-api-key">Mistral API Key</Label>
-              <div className="relative">
-                <Input
-                  id="mistral-api-key"
-                  type={showApiKey ? "text" : "password"}
-                  placeholder="Enter your Mistral API key"
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
-                  className="pr-10"
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                  onClick={() => setShowApiKey(!showApiKey)}
-                >
-                  {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </Button>
-              </div>
-            </div>
-
             {error && (
               <Alert variant="destructive">
                 <AlertDescription>{error}</AlertDescription>
@@ -217,7 +185,7 @@ Format the response in HTML with proper headings and structure.`;
 
             <Button 
               onClick={handleAnalyze} 
-              disabled={isAnalyzing || !apiKey.trim()}
+              disabled={isAnalyzing}
               className="w-full"
             >
               {isAnalyzing ? (
