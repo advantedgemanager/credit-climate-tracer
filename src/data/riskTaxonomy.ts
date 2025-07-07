@@ -35,52 +35,12 @@ export interface ReportInputData {
 export const EMBEDDED_RISK_TAXONOMY: TaxonomyNode[] = [
   {
     pathId: "PATH_001",
-    dependency: "High reliance on carbon-intensive logistics",
-    impact: "Cost increases due to fuel taxes",
-    transitionRisk: "Policy-driven cost pass-through",
-    transmissionChannel: "OPEX pressure reduces cash reserves",
-    financialEffect: "Lower interest coverage ratio",
-    creditRisk: "Elevated default risk",
-    KPIs: ["Logistics emissions intensity", "Client fuel mix ratio", "EBITDA margin"]
-  },
-  {
-    pathId: "PATH_002",
-    dependency: "Fossil fuel-dependent manufacturing processes",
-    impact: "Regulatory compliance costs",
-    transitionRisk: "Carbon pricing mechanisms",
-    transmissionChannel: "Increased operational expenditure",
-    financialEffect: "Reduced profit margins",
-    creditRisk: "Higher probability of default",
-    KPIs: ["Carbon intensity per unit", "Compliance cost ratio", "Net profit margin"]
-  },
-  {
-    pathId: "PATH_003",
-    dependency: "Water-intensive operations",
-    impact: "Water scarcity affects production",
-    transitionRisk: "Physical climate risks",
-    transmissionChannel: "Production capacity constraints",
-    financialEffect: "Revenue decline",
-    creditRisk: "Cash flow deterioration",
-    KPIs: ["Water usage efficiency", "Production capacity utilization", "Revenue volatility"]
-  },
-  {
-    pathId: "PATH_004",
-    dependency: "Energy-intensive data centers",
-    impact: "Rising electricity costs",
-    transitionRisk: "Energy transition pricing",
-    transmissionChannel: "Operating cost inflation",
-    financialEffect: "Compressed operating margins",
-    creditRisk: "Debt service coverage pressure",
-    KPIs: ["Energy consumption per server", "Renewable energy mix", "Operating cost ratio"]
-  },
-  {
-    pathId: "PATH_005",
-    dependency: "Supply chain in climate-vulnerable regions",
-    impact: "Supply chain disruptions",
-    transitionRisk: "Physical climate adaptation",
-    transmissionChannel: "Inventory and production volatility",
-    financialEffect: "Working capital strain",
-    creditRisk: "Liquidity risk elevation",
-    KPIs: ["Supply chain resilience score", "Inventory turnover", "Working capital ratio"]
+    dependency: "Client reliance on subsidies or tax credits for survival",
+    impact: "Direct financial shortfall in transition CAPEX funding, Higher cost of capital and leverage pressure, delayed transition readiness, reduced competitiveness against subsidized peers, loss of green product labelling and customer preference, missed access to blended finance structures, legal and reputational exposure",
+    transitionRisk: "Business model risk, technology obsolescence risk, policy and regulatory risk, market risk, credit risk deterioration, reputational and stakeholder risk, strategic planning risk, liquidity and refinancing risk",
+    transmissionChannel: "Revenue contraction due to lost green offer → Lower turnover → Impacts revenue growth and volatility. Margin compression from commoditization → decreased gross margin and contribution margin → impacts EBITDA margin and lowers cash flow resilience. Loss of product pricing power → lower contribution per unit → impacts the ROA and the operational leverage. Drop in green procurement eligibility → decrease in qualified revenue streams and increase in volatility → impacts revenue stability and earnings volatility. Loss of ESG-sensitive customers → decrease in customer diversification and loss of key accounts → impacts customer concentration which impacts PD. Strategic asset stranding → decrease book-to-market ratio and increases impairments → impacts asset quality which impacts PD and LGD. Lower NPV of business unit → decreases future profitability and value erosion → impacts discounted cashflows",
+    financialEffect: "Loss of eligibility for tax credits or subsidies due to environmental non-compliance",
+    creditRisk: "PD deterioration through multiple transmission channels affecting revenue stability, margin compression, asset quality, and cash flow resilience",
+    KPIs: ["Revenue growth and volatility", "EBITDA margin", "ROA", "Operational leverage", "Customer concentration ratio", "Asset quality metrics", "Book-to-market ratio", "Discounted cash flows"]
   }
 ];
