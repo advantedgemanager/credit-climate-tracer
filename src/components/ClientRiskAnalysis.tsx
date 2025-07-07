@@ -7,6 +7,7 @@ import { Loader2, FileText, Sparkles, TrendingUp, Database } from "lucide-react"
 import { useBankSetup } from "@/contexts/BankSetupContext";
 import { HIERARCHICAL_RISK_TAXONOMY } from "@/data/riskTaxonomy";
 import { MistralService } from "@/services/mistralService";
+import { ReportService } from "@/services/reportService";
 import { toast } from "@/hooks/use-toast";
 
 export const ClientRiskAnalysis = () => {
@@ -105,10 +106,32 @@ Format the response in HTML with proper headings and structure.`;
       const report = await MistralService.generateClientAnalysis(prompt);
       setAnalysisResult(report);
       
-      toast({
-        title: "Analysis Complete",
-        description: "Client risk analysis has been generated successfully.",
-      });
+      // Save report to database
+      try {
+        await ReportService.saveReport({
+          title: `Client Risk Analysis - ${clientData.clientName}`,
+          client_name: clientData.clientName,
+          nace_code: clientData.naceCode,
+          report_type: 'client_analysis',
+          content: report,
+          metadata: { analysisData, selectedRisks: selectedRiskDetails },
+          material_issues: selectedRiskDetails.length,
+          risk_pathways: analysisData.totalTransmissionChannels,
+          kpis: analysisData.totalDataPoints,
+          risk_score: selectedRiskDetails.length > 10 ? 'High' : selectedRiskDetails.length > 5 ? 'Medium' : 'Low'
+        });
+        
+        toast({
+          title: "Analysis Complete & Saved",
+          description: "Client risk analysis has been generated and saved to history.",
+        });
+      } catch (saveError) {
+        console.error("Failed to save analysis:", saveError);
+        toast({
+          title: "Analysis Complete",
+          description: "Analysis generated successfully, but failed to save to history.",
+        });
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to analyze client";
       setError(errorMessage);

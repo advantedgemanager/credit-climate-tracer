@@ -14,7 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      reports: {
+        Row: {
+          client_name: string
+          content: string
+          created_at: string
+          id: string
+          kpis: number | null
+          material_issues: number | null
+          metadata: Json | null
+          nace_code: string | null
+          report_type: string
+          risk_pathways: number | null
+          risk_score: string | null
+          title: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          client_name: string
+          content: string
+          created_at?: string
+          id?: string
+          kpis?: number | null
+          material_issues?: number | null
+          metadata?: Json | null
+          nace_code?: string | null
+          report_type: string
+          risk_pathways?: number | null
+          risk_score?: string | null
+          title: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          client_name?: string
+          content?: string
+          created_at?: string
+          id?: string
+          kpis?: number | null
+          material_issues?: number | null
+          metadata?: Json | null
+          nace_code?: string | null
+          report_type?: string
+          risk_pathways?: number | null
+          risk_score?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

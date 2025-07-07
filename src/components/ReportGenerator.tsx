@@ -6,6 +6,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Download, Copy, Sparkles, FileText } from "lucide-react";
 import { MistralService } from "@/services/mistralService";
+import { ReportService } from "@/services/reportService";
 import { toast } from "@/hooks/use-toast";
 import type { ReportInputData } from "@/data/riskTaxonomy";
 
@@ -34,10 +35,31 @@ export const ReportGenerator = ({ reportInputData, onReportGenerated }: ReportGe
       setGeneratedReport(report);
       onReportGenerated?.(report);
       
-      toast({
-        title: "Report Generated Successfully",
-        description: "Your ESG risk assessment report has been generated.",
-      });
+      // Save report to database
+      try {
+        await ReportService.saveReport({
+          title: `ESG Risk Assessment - ${new Date().toLocaleDateString()}`,
+          client_name: "Materiality Assessment Report",
+          report_type: 'materiality_assessment',
+          content: report,
+          metadata: { reportInputData },
+          material_issues: summary.uniqueHeatpoints,
+          risk_pathways: summary.totalMatches,
+          kpis: summary.totalKPIs,
+          risk_score: summary.totalMatches > 10 ? 'High' : summary.totalMatches > 5 ? 'Medium' : 'Low'
+        });
+        
+        toast({
+          title: "Report Generated & Saved",
+          description: "Your ESG risk assessment report has been generated and saved to history.",
+        });
+      } catch (saveError) {
+        console.error("Failed to save report:", saveError);
+        toast({
+          title: "Report Generated",
+          description: "Report generated successfully, but failed to save to history.",
+        });
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to generate report";
       setError(errorMessage);
