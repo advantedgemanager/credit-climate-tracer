@@ -1,14 +1,12 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
 import { FileUploadSection } from "@/components/FileUploadSection";
 import { ReportSection } from "@/components/ReportSection";
 import { HistorySection } from "@/components/HistorySection";
 import { Badge } from "@/components/ui/badge";
-import { Shield, TrendingUp, FileText, Settings } from "lucide-react";
+import { Shield, TrendingUp, FileText } from "lucide-react";
 
 const Index = () => {
   const [uploadedMaterialityFile, setUploadedMaterialityFile] = useState<File | null>(null);
@@ -32,17 +30,9 @@ const Index = () => {
                 <p className="text-sm text-slate-600">Climate Transition Risk Assessment Platform</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <Link to="/setup">
-                <Button variant="outline" className="flex items-center gap-2">
-                  <Settings className="h-4 w-4" />
-                  Bank Setup
-                </Button>
-              </Link>
-              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                CRO Edition
-              </Badge>
-            </div>
+            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+              CRO Edition
+            </Badge>
           </div>
         </div>
       </header>
