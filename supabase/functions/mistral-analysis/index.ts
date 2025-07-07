@@ -50,56 +50,92 @@ Format the response in clean HTML with proper headings, lists, and structure. Us
 
     console.log('Sending request to Mistral API...');
 
-    const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${mistralApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'mistral-large-latest',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are an expert Chief Risk Officer with deep knowledge of ESG risks, credit risk assessment, and financial analysis. Provide detailed, actionable insights.'
-          },
-          {
-            role: 'user',
-            content: analysisPrompt
-          }
-        ],
-        temperature: 0.3,
-        max_tokens: 4000
-      }),
-    });
+    // Try multiple models in order of preference, fallback to more accessible ones
+    const models = ['mistral-medium-latest', 'mistral-small-latest', 'open-mistral-7b'];
+    let lastError = null;
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Mistral API error:', errorText);
-      throw new Error(`Mistral API error: ${response.status} - ${errorText}`);
+    for (const model of models) {
+      try {
+        console.log(`Attempting with model: ${model}`);
+        
+        const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${mistralApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: model,
+            messages: [
+              {
+                role: 'system',
+                content: 'You are an expert Chief Risk Officer with deep knowledge of ESG risks, credit risk assessment, and financial analysis. Provide detailed, actionable insights.'
+              },
+              {
+                role: 'user',
+                content: analysisPrompt
+              }
+            ],
+            temperature: 0.3,
+            max_tokens: 4000
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const content = data.choices[0].message.content;
+          console.log(`Successfully generated analysis with model: ${model}`);
+          
+          return new Response(
+            JSON.stringify({ content }),
+            { 
+              headers: { 
+                ...corsHeaders, 
+                'Content-Type': 'application/json' 
+              } 
+            }
+          );
+        } else {
+          const errorText = await response.text();
+          lastError = `${model}: ${response.status} - ${errorText}`;
+          console.warn(`Model ${model} failed:`, errorText);
+          
+          // If it's a 429 (rate limit), try next model immediately
+          if (response.status === 429) {
+            continue;
+          }
+          
+          // For other errors, still try next model but with a delay
+          if (models.indexOf(model) < models.length - 1) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          }
+        }
+      } catch (error) {
+        lastError = `${model}: ${error.message}`;
+        console.warn(`Model ${model} failed with exception:`, error.message);
+        continue;
+      }
     }
 
-    const data = await response.json();
-    const content = data.choices[0].message.content;
-
-    console.log('Successfully generated analysis');
-
-    return new Response(
-      JSON.stringify({ content }),
-      { 
-        headers: { 
-          ...corsHeaders, 
-          'Content-Type': 'application/json' 
-        } 
-      }
-    );
-
+    // All models failed
+    console.error('All Mistral models failed. Last error:', lastError);
+    throw new Error(`All Mistral models failed. ${lastError || 'Unknown error'}`);
   } catch (error) {
     console.error('Error in mistral-analysis function:', error);
     
+    // Provide more specific error messages for common issues
+    let userMessage = error.message;
+    if (error.message.includes('429')) {
+      userMessage = 'API rate limit exceeded. Please try again in a few minutes.';
+    } else if (error.message.includes('401')) {
+      userMessage = 'Invalid API key. Please check your Mistral API configuration.';
+    } else if (error.message.includes('quota') || error.message.includes('tier')) {
+      userMessage = 'API quota exceeded or model not available in your subscription tier.';
+    }
+
     return new Response(
       JSON.stringify({ 
-        error: error.message || 'Failed to generate analysis' 
+        error: userMessage
       }),
       { 
         status: 500,
@@ -110,4 +146,5 @@ Format the response in clean HTML with proper headings, lists, and structure. Us
       }
     );
   }
+
 });
