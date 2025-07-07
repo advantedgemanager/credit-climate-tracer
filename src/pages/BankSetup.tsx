@@ -1,39 +1,18 @@
 import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Upload, TreePine } from "lucide-react";
-import { HIERARCHICAL_RISK_TAXONOMY } from "@/data/riskTaxonomy";
+import { TreePine } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { ClientData, MaterialityDecision, ExpandedState } from "@/types/bankSetup";
+import { ExpandedState } from "@/types/bankSetup";
+import { useBankSetup } from "@/contexts/BankSetupContext";
 import BankSetupHeader from "@/components/BankSetupHeader";
-import PortfolioUploadTab from "@/components/PortfolioUploadTab";
 import RiskTaxonomyTab from "@/components/RiskTaxonomyTab";
 
 const BankSetup = () => {
   const { toast } = useToast();
-  const [clientData, setClientData] = useState<ClientData>({
-    clientName: "",
-    naceCode: "",
-    financialStatements: null,
-    climateReports: null
-  });
-
-  const [materialityDecisions, setMaterialityDecisions] = useState<MaterialityDecision[]>(() => {
-    const decisions: MaterialityDecision[] = [];
-    HIERARCHICAL_RISK_TAXONOMY.forEach(category => {
-      category.subcategories.forEach(subcategory => {
-        subcategory.dependencies.forEach(dependency => {
-          decisions.push({
-            dependencyId: dependency.id,
-            selected: false,
-            rationale: "",
-            approvedBy: "",
-            timestamp: new Date()
-          });
-        });
-      });
-    });
-    return decisions;
-  });
+  const { 
+    materialityDecisions, 
+    setMaterialityDecisions, 
+    selectedRisks 
+  } = useBankSetup();
 
   const [expandedState, setExpandedState] = useState<ExpandedState>({});
 
@@ -65,10 +44,8 @@ const BankSetup = () => {
   };
 
   const exportDocumentation = () => {
-    const selectedDecisions = materialityDecisions.filter(d => d.selected);
     const documentation = {
-      clientData,
-      materialityDecisions: selectedDecisions,
+      materialityDecisions: selectedRisks,
       exportDate: new Date().toISOString()
     };
     
@@ -77,7 +54,7 @@ const BankSetup = () => {
     const url = URL.createObjectURL(dataBlob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `bank-setup-${clientData.clientName || 'export'}-${new Date().toISOString().split('T')[0]}.json`;
+    link.download = `bank-setup-materiality-${new Date().toISOString().split('T')[0]}.json`;
     link.click();
     
     toast({
@@ -87,10 +64,9 @@ const BankSetup = () => {
   };
 
   const saveSetup = () => {
-    // Here you would typically save to a backend
     toast({
       title: "Setup Saved",
-      description: "Bank setup configuration has been saved with audit trail."
+      description: `Bank setup configuration saved with ${selectedRisks.length} material risks selected.`
     });
   };
 
@@ -103,37 +79,13 @@ const BankSetup = () => {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Tabs defaultValue="portfolio" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
-            <TabsTrigger value="portfolio" className="flex items-center gap-2">
-              <Upload className="h-4 w-4" />
-              Portfolio Upload
-            </TabsTrigger>
-            <TabsTrigger value="taxonomy" className="flex items-center gap-2">
-              <TreePine className="h-4 w-4" />
-              Risk Taxonomy
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Portfolio Upload Tab */}
-          <TabsContent value="portfolio">
-            <PortfolioUploadTab 
-              clientData={clientData}
-              setClientData={setClientData}
-            />
-          </TabsContent>
-
-          {/* Risk Taxonomy Tab */}
-          <TabsContent value="taxonomy">
-            <RiskTaxonomyTab 
-              materialityDecisions={materialityDecisions}
-              expandedState={expandedState}
-              onMaterialityToggle={handleMaterialityToggle}
-              onRationaleUpdate={handleRationaleUpdate}
-              onToggleExpanded={toggleExpanded}
-            />
-          </TabsContent>
-        </Tabs>
+        <RiskTaxonomyTab 
+          materialityDecisions={materialityDecisions}
+          expandedState={expandedState}
+          onMaterialityToggle={handleMaterialityToggle}
+          onRationaleUpdate={handleRationaleUpdate}
+          onToggleExpanded={toggleExpanded}
+        />
       </main>
     </div>
   );

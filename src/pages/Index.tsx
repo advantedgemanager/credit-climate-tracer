@@ -1,21 +1,18 @@
 
-import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { FileUploadSection } from "@/components/FileUploadSection";
-import { ReportSection } from "@/components/ReportSection";
-import { HistorySection } from "@/components/HistorySection";
 import { Badge } from "@/components/ui/badge";
-import { Shield, TrendingUp, FileText, Settings } from "lucide-react";
+import { Shield, TrendingUp, FileText, Settings, Upload } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useBankSetup } from "@/contexts/BankSetupContext";
+import { ClientDocumentUpload } from "@/components/ClientDocumentUpload";
+import { BankSetupStatus } from "@/components/BankSetupStatus";
+import { ClientRiskAnalysis } from "@/components/ClientRiskAnalysis";
+import { HistorySection } from "@/components/HistorySection";
 
 const Index = () => {
-  const [uploadedMaterialityFile, setUploadedMaterialityFile] = useState<File | null>(null);
-
-  const handleFileUpload = (file: File) => {
-    setUploadedMaterialityFile(file);
-  };
+  const { isSetupComplete } = useBankSetup();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
@@ -81,11 +78,11 @@ const Index = () => {
               <div className="p-2 bg-green-100 rounded-lg w-fit">
                 <TrendingUp className="h-5 w-5 text-green-600" />
               </div>
-              <CardTitle className="text-lg">Materiality Matching</CardTitle>
+              <CardTitle className="text-lg">Client Analysis</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-slate-600 text-sm">
-                Upload your materiality assessment to automatically match material heatpoints to taxonomy nodes.
+                Upload client documents to analyze against your established materiality framework from Bank Setup.
               </p>
             </CardContent>
           </Card>
@@ -110,19 +107,23 @@ const Index = () => {
           <CardHeader>
             <CardTitle className="text-xl">Risk Assessment Dashboard</CardTitle>
             <CardDescription>
-              Upload your materiality assessment to generate comprehensive ESG-to-credit risk reports using our embedded taxonomy
+              Upload client documents and analyze against your Bank Setup materiality framework to generate AI-powered reports
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="upload" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 mb-6">
-                <TabsTrigger value="upload" className="flex items-center gap-2">
-                  <FileText className="h-4 w-4" />
-                  Upload & Analysis
+            <Tabs defaultValue="setup" className="w-full">
+              <TabsList className="grid w-full grid-cols-4 mb-6">
+                <TabsTrigger value="setup" className="flex items-center gap-2">
+                  <Settings className="h-4 w-4" />
+                  Bank Setup
                 </TabsTrigger>
-                <TabsTrigger value="reports" className="flex items-center gap-2">
+                <TabsTrigger value="client" className="flex items-center gap-2">
+                  <Upload className="h-4 w-4" />
+                  Client Documents
+                </TabsTrigger>
+                <TabsTrigger value="analysis" className="flex items-center gap-2">
                   <TrendingUp className="h-4 w-4" />
-                  Reports
+                  Risk Analysis
                 </TabsTrigger>
                 <TabsTrigger value="history" className="flex items-center gap-2">
                   <Shield className="h-4 w-4" />
@@ -130,15 +131,16 @@ const Index = () => {
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="upload" className="space-y-6">
-                <FileUploadSection 
-                  onFileUpload={handleFileUpload}
-                  uploadedMaterialityFile={uploadedMaterialityFile}
-                />
+              <TabsContent value="setup" className="space-y-6">
+                <BankSetupStatus />
               </TabsContent>
 
-              <TabsContent value="reports" className="space-y-6">
-                <ReportSection uploadedMaterialityFile={uploadedMaterialityFile} />
+              <TabsContent value="client" className="space-y-6">
+                <ClientDocumentUpload />
+              </TabsContent>
+
+              <TabsContent value="analysis" className="space-y-6">
+                <ClientRiskAnalysis />
               </TabsContent>
 
               <TabsContent value="history" className="space-y-6">

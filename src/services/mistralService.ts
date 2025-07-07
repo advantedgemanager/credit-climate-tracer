@@ -86,4 +86,37 @@ Format the output as clean HTML.`;
 
     return data.choices[0].message.content;
   }
+
+  static async generateClientAnalysis(prompt: string, apiKey: string): Promise<string> {
+    const messages: MistralMessage[] = [
+      { role: 'user', content: prompt }
+    ];
+
+    const response = await fetch(this.API_URL, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'mistral-large-latest',
+        messages: messages,
+        temperature: 0.3,
+        max_tokens: 4000,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw new Error(errorData?.error?.message || `Mistral API error: ${response.status}`);
+    }
+
+    const data: MistralResponse = await response.json();
+    
+    if (!data.choices || data.choices.length === 0) {
+      throw new Error('No response generated from Mistral API');
+    }
+
+    return data.choices[0].message.content;
+  }
 }
