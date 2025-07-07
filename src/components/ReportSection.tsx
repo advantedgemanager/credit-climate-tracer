@@ -12,27 +12,8 @@ interface ReportSectionProps {
 export const ReportSection = ({ uploadedMaterialityFile }: ReportSectionProps) => {
   const hasRequiredFile = uploadedMaterialityFile !== null;
 
-  // Mock report data for demonstration
-  const mockReports = [
-    {
-      id: 1,
-      name: "Q4 2024 Climate Risk Assessment",
-      status: "completed",
-      createdAt: "2024-01-15",
-      materialIssues: 8,
-      riskPathways: 12,
-      kpis: 24
-    },
-    {
-      id: 2,
-      name: "Manufacturing Client Analysis",
-      status: "processing",
-      createdAt: "2024-01-14",
-      materialIssues: 6,
-      riskPathways: 9,
-      kpis: 18
-    }
-  ];
+  // No mock data - reports will be generated from actual uploads
+  const mockReports: any[] = [];
 
   const getStatusBadge = (status: string) => {
     switch (status) {

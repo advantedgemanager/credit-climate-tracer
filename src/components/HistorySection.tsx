@@ -11,57 +11,8 @@ export const HistorySection = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
-  // Mock history data
-  const mockHistory = [
-    {
-      id: 1,
-      name: "Q4 2024 Climate Risk Assessment",
-      client: "Manufacturing Corp A",
-      status: "completed",
-      createdAt: "2024-01-15",
-      completedAt: "2024-01-15",
-      materialIssues: 8,
-      riskPathways: 12,
-      kpis: 24,
-      riskScore: "High"
-    },
-    {
-      id: 2,
-      name: "Manufacturing Client Analysis",
-      client: "Industrial Holdings B",
-      status: "completed",
-      createdAt: "2024-01-14",
-      completedAt: "2024-01-14",
-      materialIssues: 6,
-      riskPathways: 9,
-      kpis: 18,
-      riskScore: "Medium"
-    },
-    {
-      id: 3,
-      name: "Energy Sector Assessment",
-      client: "Power Generation C",
-      status: "completed",
-      createdAt: "2024-01-12",
-      completedAt: "2024-01-13",
-      materialIssues: 12,
-      riskPathways: 18,
-      kpis: 36,
-      riskScore: "High"
-    },
-    {
-      id: 4, 
-      name: "Retail Chain Analysis",
-      client: "Consumer Retail D",
-      status: "completed",
-      createdAt: "2024-01-10",
-      completedAt: "2024-01-11",
-      materialIssues: 4,
-      riskPathways: 6,
-      kpis: 12,
-      riskScore: "Low"
-    }
-  ];
+  // No mock data - history will be populated from actual analyses
+  const mockHistory: any[] = [];
 
   const getStatusBadge = (status: string) => {
     return (
