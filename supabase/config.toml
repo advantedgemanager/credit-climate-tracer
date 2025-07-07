@@ -1,1 +1,4 @@
 project_id = "fvniepahihvdzcpbcnbn"
+
+[functions.mistral-analysis]
+verify_jwt = false
