@@ -18,12 +18,6 @@ interface ClientData {
   climateReports: File | null;
 }
 
-interface RiskParameters {
-  riskAppetite: string;
-  monitoringFrequency: string;
-  thresholds: string;
-  escalationProcedures: string;
-}
 
 interface MaterialityDecision {
   pathId: string;
@@ -42,12 +36,6 @@ const BankSetup = () => {
     climateReports: null
   });
 
-  const [riskParameters, setRiskParameters] = useState<RiskParameters>({
-    riskAppetite: "",
-    monitoringFrequency: "",
-    thresholds: "",
-    escalationProcedures: ""
-  });
 
   const [materialityDecisions, setMaterialityDecisions] = useState<MaterialityDecision[]>(
     EMBEDDED_RISK_TAXONOMY.map(node => ({
@@ -88,7 +76,6 @@ const BankSetup = () => {
     const selectedDecisions = materialityDecisions.filter(d => d.selected);
     const documentation = {
       clientData,
-      riskParameters,
       materialityDecisions: selectedDecisions,
       exportDate: new Date().toISOString()
     };
@@ -146,14 +133,10 @@ const BankSetup = () => {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs defaultValue="portfolio" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-6">
+          <TabsList className="grid w-full grid-cols-2 mb-6">
             <TabsTrigger value="portfolio" className="flex items-center gap-2">
               <Upload className="h-4 w-4" />
               Portfolio Upload
-            </TabsTrigger>
-            <TabsTrigger value="parameters" className="flex items-center gap-2">
-              <Settings className="h-4 w-4" />
-              Risk Parameters
             </TabsTrigger>
             <TabsTrigger value="taxonomy" className="flex items-center gap-2">
               <TreePine className="h-4 w-4" />
@@ -222,61 +205,6 @@ const BankSetup = () => {
             </Card>
           </TabsContent>
 
-          {/* Risk Parameters Tab */}
-          <TabsContent value="parameters">
-            <Card>
-              <CardHeader>
-                <CardTitle>Risk Appetite Parameters</CardTitle>
-                <CardDescription>
-                  Define risk appetite, monitoring frequency, and escalation procedures
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="riskAppetite">Risk Appetite Statement</Label>
-                  <Textarea
-                    id="riskAppetite"
-                    value={riskParameters.riskAppetite}
-                    onChange={(e) => setRiskParameters(prev => ({ ...prev, riskAppetite: e.target.value }))}
-                    placeholder="Define the bank's appetite for climate transition risks..."
-                    rows={3}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="monitoringFrequency">Monitoring Frequency</Label>
-                  <Input
-                    id="monitoringFrequency"
-                    value={riskParameters.monitoringFrequency}
-                    onChange={(e) => setRiskParameters(prev => ({ ...prev, monitoringFrequency: e.target.value }))}
-                    placeholder="e.g., Quarterly review, Monthly KPI updates"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="thresholds">Risk Thresholds</Label>
-                  <Textarea
-                    id="thresholds"
-                    value={riskParameters.thresholds}
-                    onChange={(e) => setRiskParameters(prev => ({ ...prev, thresholds: e.target.value }))}
-                    placeholder="Define quantitative thresholds for risk escalation..."
-                    rows={3}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="escalationProcedures">Escalation Procedures</Label>
-                  <Textarea
-                    id="escalationProcedures"
-                    value={riskParameters.escalationProcedures}
-                    onChange={(e) => setRiskParameters(prev => ({ ...prev, escalationProcedures: e.target.value }))}
-                    placeholder="Describe procedures for risk threshold breaches..."
-                    rows={3}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
 
           {/* Risk Taxonomy Tab */}
           <TabsContent value="taxonomy">
