@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Shield, TrendingUp, FileText, Settings, Upload } from "lucide-react";
 import { Link } from "react-router-dom";
+import { UserMenu } from "@/components/UserMenu";
 import { useBankSetup } from "@/contexts/BankSetupContext";
 import { ClientDocumentUpload } from "@/components/ClientDocumentUpload";
 import { BankSetupStatus } from "@/components/BankSetupStatus";
@@ -39,6 +40,7 @@ const Index = () => {
               <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
                 CRO Edition
               </Badge>
+              <UserMenu />
             </div>
           </div>
         </div>
